@@ -9,8 +9,8 @@ import stbi "vendor:stb/image"
 
 default_context: runtime.Context
 
-frag_shader_code := #load("shader.spv.frag")
-vert_shader_code := #load("shader.spv.vert")
+frag_shader_code := #load("shader.metal.frag")
+vert_shader_code := #load("shader.metal.vert")
 
 Vec3 :: [3]f32
 Vec2 :: [2]f32
@@ -29,7 +29,7 @@ main :: proc() {
 
 	window := sdl.CreateWindow("Hello SDL3", 1280, 780, {}); assert(window != nil)
 
-	gpu := sdl.CreateGPUDevice({.SPIRV}, true, nil); assert(gpu != nil)
+	gpu := sdl.CreateGPUDevice({.MSL}, true, nil); assert(gpu != nil)
 
 	ok = sdl.ClaimWindowForGPUDevice(gpu, window); assert(ok)
 
@@ -53,7 +53,7 @@ main :: proc() {
 	win_size: [2]i32
 	ok = sdl.GetWindowSize(window, &win_size.x, &win_size.y); assert(ok)
 
-	DEPTH_TEXTURE_FORMAT :: sdl.GPUTextureFormat.D24_UNORM
+	DEPTH_TEXTURE_FORMAT :: sdl.GPUTextureFormat.D32_FLOAT
 
 	depth_texture := sdl.CreateGPUTexture(gpu, {
 		format = DEPTH_TEXTURE_FORMAT,
@@ -277,8 +277,8 @@ load_shader :: proc(device: ^sdl.GPUDevice, code: []u8, stage: sdl.GPUShaderStag
 	return sdl.CreateGPUShader(device, {
 		code_size = len(code),
 		code = raw_data(code),
-		entrypoint = "main",
-		format = {.SPIRV},
+		entrypoint = "main0",
+		format = {.MSL},
 		stage = stage,
 		num_uniform_buffers = num_uniform_buffers,
 		num_samplers = num_samplers,
